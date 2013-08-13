@@ -310,7 +310,12 @@ class Compiler(object):
                 n,v = attr['name'], attr['val']
                 if isinstance(v,six.string_types):
                     if self.useRuntime or attr['static']:
-                        self.buf.append(' %s=%s'%(n,v))
+                        if n == '^':
+                            if v[0] == v[-1:] == '"':
+                                v = v[1:-1] # Remove surrounding quotations
+                            self.buf.append(' %s'%v)
+                        else:
+                            self.buf.append(' %s=%s'%(n,v))
                     else:
                         self.buf.append(' %s="%s"'%(n,self.visitVar(v)))
                 elif v is True:
