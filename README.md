@@ -202,6 +202,18 @@ can also do something like this:
 
 This will compile into the same Django template snippet.
 
+
+**If you need to pass a bare template tag to an element to dynamically generate an HTML attribute, use `^`:**
+```jinja
+<h2 class="no_entries" {% add_link "blog" "blogentry" %} >{% trans 'No Blog Entries Found.' %}</h2>
+```
+is written like this in jade:
+```jade
+h2(class="no_entries", ^='{% add_link "blog" "blogentry" %}')
+  - trans 'No Blog Entries Found.'
+```
+Multiple attributes for an HTML tag can be separated by commas or newlines. Using `^` as the attribute name will cause the value to be passed through to the intermediate template unaltered.
+
 TESTING
 =======
 
