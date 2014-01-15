@@ -70,7 +70,7 @@ class Loader(BaseLoader):
                 # of the actual template that does not exist.
                 return template, origin
         
-        return template
+        return template, None
 
     # def _preprocess(self, source, name, filename=None):
     #     parser = Parser(source,filename=filename)
