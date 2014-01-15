@@ -50,35 +50,27 @@ class Loader(BaseLoader):
         raise TemplateDoesNotExist(template_name)
 
     def load_template(self, template_name, template_dirs=None):
-        key = template_name
-        if template_dirs:
-            # If template directories were specified, use a hash to differentiate
-            key = '-'.join([template_name, hashlib.sha1('|'.join(template_dirs)).hexdigest()])
-
-        
-        if settings.DEBUG or key not in self.template_cache:
-
-            if os.path.splitext(str(template_name))[1] in ('.jade',):
-                try:
-                    source, display_name = self.load_template_source(template_name, template_dirs)
-                    source=process(source,filename=template_name,compiler=Compiler)
-                    origin = make_origin(display_name, self.load_template_source, template_name, template_dirs)
-                    template = get_template_from_string(source, origin, template_name)
-                except NotImplementedError:
-                    template, origin = self.find_template(template_name, template_dirs)
-            else:
+        if os.path.splitext(str(template_name))[1] in ('.jade',):
+            try:
+                source, display_name = self.load_template_source(template_name, template_dirs)
+                source=process(source,filename=template_name,compiler=Compiler)
+                origin = make_origin(display_name, self.load_template_source, template_name, template_dirs)
+                template = get_template_from_string(source, origin, template_name)
+            except NotImplementedError:
                 template, origin = self.find_template(template_name, template_dirs)
-            if not hasattr(template, 'render'):
-                try:
-                    template = get_template_from_string(process(source,filename=template_name,compiler=Compiler), origin, template_name)
-                except TemplateDoesNotExist:
-                    # If compiling the template we found raises TemplateDoesNotExist,
-                    # back off to returning he source and display name for the template
-                    # we were asked to load. This allows for correct identification (later)
-                    # of the actual template that does not exist.
-                    return template, origin
-            self.template_cache[key] = template
-        return self.template_cache[key], None
+        else:
+            template, origin = self.find_template(template_name, template_dirs)
+        if not hasattr(template, 'render'):
+            try:
+                template = get_template_from_string(process(source,filename=template_name,compiler=Compiler), origin, template_name)
+            except TemplateDoesNotExist:
+                # If compiling the template we found raises TemplateDoesNotExist,
+                # back off to returning he source and display name for the template
+                # we were asked to load. This allows for correct identification (later)
+                # of the actual template that does not exist.
+                return template, origin
+        
+        return template
 
     # def _preprocess(self, source, name, filename=None):
     #     parser = Parser(source,filename=filename)
